@@ -9,12 +9,17 @@ interface Props {
   eager?: boolean;
   /** Single-column layout (before/after panels), so photos render wider than in the 3-column grid. */
   compact?: boolean;
+  /** Tailwind aspect class for cropped photos. */
+  aspect?: string;
 }
-const { item, group, eager = false, compact = false } = Astro.props;
+const { item, group, eager = false, compact = false, aspect = 'aspect-[4/3]' } = Astro.props;
 const photoSizes = compact
   ? '(min-width: 1024px) 540px, calc(100vw - 4rem)'
   : '(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw';
 const { image, kind, alt, caption } = item;
+const uncropped = kind !== 'photo';
+// Never generate sizes above the source's native width.
+const photoWidths = [...[360, 540, 720].filter((w) => w < image.width), image.width];
 
 // The lightbox opens the image at its native size; never upscaled.
 const full = await getImage({ src: image, width: image.width, format: 'webp' });
@@ -27,12 +32,12 @@ const full = await getImage({ src: image, width: image.width, format: 'webp' });
   data-alt={alt}
   data-caption={caption}
   aria-label={t.lightbox.openImage(alt)}
-  class:list={['block', kind === 'collage' ? 'w-full' : 'aspect-[4/3] overflow-hidden rounded-lg bg-gray-100']}
-  style={kind === 'collage' ? `max-width:${image.width}px` : undefined}
+  class:list={['block', uncropped ? 'w-full' : [aspect, 'overflow-hidden rounded-lg bg-gray-100']]}
+  style={uncropped ? `max-width:${image.width}px` : undefined}
 >
   {
-    kind === 'collage' ? (
-      // Collages are never cropped and never shown larger than their native width.
+    uncropped ? (
+      // Collages and documents are never cropped and never shown larger than their native width.
       <Image
         src={image}
         alt={alt}
@@ -45,7 +50,7 @@ const full = await getImage({ src: image, width: image.width, format: 'webp' });
       <Image
         src={image}
         alt={alt}
-        widths={[360, 540, 720]}
+        widths={photoWidths}
         sizes={photoSizes}
         class="size-full object-cover transition duration-300 hover:scale-105"
         loading={eager ? 'eager' : 'lazy'}

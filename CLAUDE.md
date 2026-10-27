@@ -82,7 +82,8 @@ Only the ST and CIDB company certificates are included in `assets/certificates`.
 
 ## Open TODOs for Arish
 - Fill client / location / year for each project (or leave blank)
-- Confirm which number receives WhatsApp leads and business hours
+- ~~Confirm which number receives WhatsApp leads and business hours~~ (done: 012-712 0232; Mon-Fri 8am-5pm, Sat 8am-1pm, closed Sun/public holidays)
+- Add `PUBLIC_WEB3FORMS_KEY` to the Cloudflare Pages environment variables (`.env` is not committed)
 - Get a vector/high-res logo (current one is 244px from the PDF) or recreate it as SVG
 - Replace low-res collage images with original photos where possible
 - Confirm team names can be shown publicly

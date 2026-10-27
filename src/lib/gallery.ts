@@ -2,7 +2,8 @@ import type { ImageMetadata } from 'astro:assets';
 
 export type GalleryItem = {
   image: ImageMetadata;
-  kind: 'photo' | 'collage';
+  /** 'photo' is cropped to a uniform ratio; 'collage' and 'document' are shown whole, at most native width. */
+  kind: 'photo' | 'collage' | 'document';
   phase: 'before' | 'after' | null;
   alt: string;
   caption: string;

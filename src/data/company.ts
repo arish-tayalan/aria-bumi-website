@@ -1,3 +1,5 @@
+import type { Category } from './categories';
+
 // Single source of truth for company facts. Never hard-code these in components.
 // Do NOT add IC numbers, TIN, bank details or personal certificate scans (see CLAUDE.md).
 
@@ -9,6 +11,8 @@ export type Service = {
   title: string;
   description: string;
   clients: ('home' | 'shop' | 'factory')[];
+  work: string[]; // typical work, drawn from the project descriptions
+  related: Category[]; // project categories shown as "related projects" links
 };
 
 export type TeamMember = {
@@ -42,7 +46,12 @@ export const company = {
   whatsappMessage: 'Hello Aria Bumi Resources, I would like to enquire about your services.',
   registeredWith: ['Suruhanjaya Tenaga', 'CIDB Malaysia', 'Tenaga Nasional Berhad'],
   areaServed: ['Johor Bahru', 'Johor'],
-  hours: null as string | null, // TODO: confirm business hours
+  // days use schema.org names; open/close are 24h "HH:MM". Sunday and public holidays are closed.
+  hours: [
+    { label: 'Monday to Friday', days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '08:00', closes: '17:00', text: '8:00 am to 5:00 pm' },
+    { label: 'Saturday', days: ['Saturday'], opens: '08:00', closes: '13:00', text: '8:00 am to 1:00 pm' },
+    { label: 'Sunday and public holidays', days: [] as string[], opens: '', closes: '', text: 'Closed' },
+  ],
   vision:
     'To achieve uncompromising customer satisfaction across every business, engineering, education and service sector we serve.',
   mission:
@@ -56,6 +65,12 @@ export const services: Service[] = [
     title: 'Control Systems',
     description: 'PLC, hydraulic and electro-mechanical machinery control, including control panel fabrication and installation.',
     clients: ['factory'],
+    work: [
+      'Machinery control system setup',
+      'Fabrication, wiring, installation and testing of industrial and motor control panels',
+      'Hydraulic systems and general industrial works',
+    ],
+    related: ['control-systems'],
   },
   {
     slug: 'electrical-wiring',
@@ -63,6 +78,11 @@ export const services: Service[] = [
     title: 'Electrical Wiring',
     description: '240V to 415V wiring for houses, shops, and small and large factories.',
     clients: ['home', 'shop', 'factory'],
+    work: [
+      'Electrical installation, repair and modification from 240V to 415V',
+      'Generator set installation, including synchronising and distribution switchboards',
+    ],
+    related: ['power'],
   },
   {
     slug: 'door-sensor-wiring',
@@ -70,6 +90,8 @@ export const services: Service[] = [
     title: 'Safety & Glass Door Sensors',
     description: 'Safety door and glass door sensor wiring and installation.',
     clients: ['shop', 'factory'],
+    work: ['Safety door sensor wiring', 'Glass door sensor wiring and installation'],
+    related: [],
   },
   {
     slug: 'cctv-alarm',
@@ -77,6 +99,11 @@ export const services: Service[] = [
     title: 'CCTV & Alarm',
     description: 'CCTV and alarm system installation for houses, shops and factories.',
     clients: ['home', 'shop', 'factory'],
+    work: [
+      'CCTV camera and alarm installation',
+      'Monitoring display and smart home integration, including automatic gates',
+    ],
+    related: ['security'],
   },
   {
     slug: 'compressor-aircond',
@@ -84,6 +111,12 @@ export const services: Service[] = [
     title: 'Air Compressor & Air-Con',
     description: 'Air compressor and air-conditioner service and installation.',
     clients: ['home', 'shop', 'factory'],
+    work: [
+      'Air compressor system works',
+      'New air-conditioner installation, maintenance and servicing',
+      'Chiller refurbishment and servicing, including pumps, piping and the chiller control panel',
+    ],
+    related: ['mechanical', 'hvac'],
   },
   {
     slug: 'earthing-lightning',
@@ -91,6 +124,12 @@ export const services: Service[] = [
     title: 'Earthing & Lightning Protection',
     description: 'Earthing and lightning protection systems for houses, shops and factories.',
     clients: ['home', 'shop', 'factory'],
+    work: [
+      'Earthing systems',
+      'Lightning protection: air terminal, down conductor and earthing pit',
+      'Replacement of corroded or deteriorated lightning protection systems',
+    ],
+    related: ['earthing-lightning'],
   },
 ];
 
@@ -100,6 +139,7 @@ export const certificates = {
     title: 'Registered Electrical Contractor',
     class: 'Class C',
     regNo: 'ST(SJB)JHR/C/KE/02019/2024',
+    validFrom: '12/12/2025',
     validUntil: '11/12/2026', // TODO: renew before this date and update
   },
   cidb: {

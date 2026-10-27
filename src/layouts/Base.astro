@@ -40,6 +40,9 @@ const jsonLd = {
   },
   geo: { '@type': 'GeoCoordinates', latitude: company.address.geo.lat, longitude: company.address.geo.lng },
   areaServed: company.areaServed.map((name) => ({ '@type': 'AdministrativeArea', name })),
+  openingHoursSpecification: company.hours
+    .filter((h) => h.days.length > 0)
+    .map((h) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: h.days, opens: h.opens, closes: h.closes })),
 };
 ---
 

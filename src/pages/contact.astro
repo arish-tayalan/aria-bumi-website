@@ -1,5 +1,86 @@
 ---
-import Stub from '../components/Stub.astro';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContactForm from '../components/ContactForm.astro';
+import MapEmbed from '../components/MapEmbed.astro';
+import CtaButtons from '../components/CtaButtons.astro';
+import Icon from '../components/Icon.astro';
+import { company, formatAddress, telHref } from '../data/company';
+import { t } from '../i18n/en';
+
+const c = t.contactPage;
 ---
 
-<Stub title="Contact" description="Contact Aria Bumi Resources in Johor Bahru by WhatsApp, phone or email for a quote." />
+<Base
+  title="Contact Us | Electrical Contractor Johor Bahru"
+  description="Contact Aria Bumi Resources at Arked Johor Jaya, Johor Bahru. WhatsApp, call or send an enquiry for electrical and mechanical work. Mon to Fri 8am to 5pm, Sat 8am to 1pm."
+>
+  <PageHeader title={c.title} sub={c.sub} />
+
+  <section class="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-[1.3fr_1fr]">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">{c.formTitle}</h2>
+      <div class="mt-5"><ContactForm /></div>
+    </div>
+
+    <aside class="space-y-6">
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <h2 class="text-lg font-bold text-gray-900">{c.detailsTitle}</h2>
+        <ul class="mt-4 space-y-4 text-sm">
+          <li class="flex gap-3">
+            <Icon name="map-pin" class="mt-0.5 size-5 shrink-0 text-brand-600" />
+            <div>
+              <p class="font-semibold text-gray-900">{c.addressLabel}</p>
+              <address class="not-italic text-gray-600">{formatAddress()}</address>
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <Icon name="phone" class="mt-0.5 size-5 shrink-0 text-brand-600" />
+            <div>
+              <p class="font-semibold text-gray-900">{c.phoneLabel}</p>
+              {
+                company.phones.map((p) => (
+                  <a href={telHref(p.number)} class="block py-1 text-gray-600 hover:text-brand-600">
+                    {p.number} <span class="text-gray-400">({p.label})</span>
+                  </a>
+                ))
+              }
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <Icon name="mail" class="mt-0.5 size-5 shrink-0 text-brand-600" />
+            <div>
+              <p class="font-semibold text-gray-900">{c.emailLabel}</p>
+              <a href={`mailto:${company.email}`} class="block break-all py-1 text-gray-600 hover:text-brand-600">
+                {company.email}
+              </a>
+            </div>
+          </li>
+        </ul>
+        <div class="mt-5"><CtaButtons /></div>
+      </div>
+
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <h2 class="flex items-center gap-2 text-lg font-bold text-gray-900">
+          <Icon name="clock" class="size-5 text-brand-600" />
+          {c.hoursTitle}
+        </h2>
+        <dl class="mt-4 space-y-2 text-sm">
+          {
+            company.hours.map((h) => (
+              <div class="flex justify-between gap-4">
+                <dt class="text-gray-600">{h.label}</dt>
+                <dd class="text-right font-medium text-gray-900">{h.text}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </aside>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pb-16">
+    <h2 class="mb-5 text-2xl font-bold text-gray-900">{c.mapTitle}</h2>
+    <MapEmbed />
+  </section>
+</Base>

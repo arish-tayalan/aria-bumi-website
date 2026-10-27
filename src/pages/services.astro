@@ -1,5 +1,83 @@
 ---
-import Stub from '../components/Stub.astro';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { services, waLink } from '../data/company';
+import { t } from '../i18n/en';
+
+const clientIcon = { home: 'house', shop: 'store', factory: 'factory' } as const;
 ---
 
-<Stub title="Services" description="Electrical wiring, control systems, CCTV, air compressors, air-conditioning and lightning protection in Johor Bahru." />
+<Base
+  title="Electrical Contractor Services in Johor Bahru"
+  description="Electrical wiring, control panels, CCTV, air compressor and air-conditioner installation and lightning protection in Johor. Kontraktor elektrik Johor Bahru."
+>
+  <PageHeader title={t.servicesPage.title} sub={t.servicesPage.sub} />
+
+  <div class="mx-auto max-w-6xl px-4 py-6">
+    {
+      services.map((s, i) => (
+        <section
+          id={s.slug}
+          class:list={['scroll-mt-24 py-10 md:grid md:grid-cols-[1fr_1.4fr] md:gap-10', i > 0 && 'border-t border-gray-200']}
+        >
+          <div>
+            <span class="inline-flex size-14 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+              <Icon name={s.icon} class="size-7" />
+            </span>
+            <h2 class="mt-4 text-2xl font-bold text-gray-900">{s.title}</h2>
+            <p class="mt-2 text-gray-600">{s.description}</p>
+
+            <h3 class="mt-5 text-sm font-semibold uppercase tracking-wide text-gray-500">{t.servicesPage.clients}</h3>
+            <ul class="mt-2 flex flex-wrap gap-2">
+              {s.clients.map((c) => (
+                <li class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700">
+                  <Icon name={clientIcon[c]} class="size-4 text-brand-600" />
+                  {t.servicesPage.clientLabels[c]}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="mt-6 md:mt-0">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">{t.servicesPage.work}</h3>
+            <ul class="mt-3 space-y-2">
+              {s.work.map((w) => (
+                <li class="flex gap-3 text-gray-700">
+                  <Icon name="badge-check" class="mt-0.5 size-5 shrink-0 text-accent-500" />
+                  <span>{w}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <a
+                href={waLink(t.servicesPage.quoteMessage(s.title))}
+                class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-whatsapp px-6 text-base font-semibold text-white hover:brightness-95"
+              >
+                <Icon name="message-circle" class="size-5" />
+                {t.servicesPage.quote}
+              </a>
+              {s.related.length > 0 && (
+                <p class="text-sm text-gray-600">
+                  {t.servicesPage.related}:{' '}
+                  {s.related.map((c, idx) => (
+                    <>
+                      {idx > 0 && ' · '}
+                      <a href={`/projects?category=${c}`} class="inline-block py-2 font-medium text-brand-600 hover:underline">
+                        {t.categories[c]}
+                      </a>
+                    </>
+                  ))}
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <CtaBand />
+</Base>

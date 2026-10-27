@@ -1,0 +1,166 @@
+---
+import Icon from './Icon.astro';
+import { services, waLink } from '../data/company';
+import { t } from '../i18n/en';
+
+const accessKey = import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined;
+const c = t.contactPage;
+
+const field = 'mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-brand-600 aria-[invalid=true]:border-red-600';
+const label = 'block text-sm font-medium text-gray-800';
+---
+
+{
+  accessKey ? (
+    <form
+      id="contact-form"
+      method="POST"
+      action="https://api.web3forms.com/submit"
+      class="space-y-4"
+      data-required={c.required}
+      data-invalid-email={c.invalidEmail}
+      data-invalid-phone={c.invalidPhone}
+      data-sending={c.sending}
+      data-send={c.send}
+      data-success={c.success}
+      data-error={c.error}
+      data-subject-template={c.emailSubject('{service}')}
+    >
+      <input type="hidden" name="access_key" value={accessKey} />
+      <input type="hidden" name="subject" value={c.emailSubject('General')} />
+      <input type="hidden" name="from_name" value="Aria Bumi website" />
+      <!-- Honeypot: humans never see or tick this; bots that fill every field are discarded by Web3Forms. -->
+      <input type="checkbox" name="botcheck" class="hidden" style="display: none;" tabindex="-1" autocomplete="off" />
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="cf-name" class={label}>{c.name}</label>
+          <input id="cf-name" name="name" type="text" required autocomplete="name" class={field} />
+        </div>
+        <div>
+          <label for="cf-company" class={label}>
+            {c.company} <span class="font-normal text-gray-500">{c.companyOptional}</span>
+          </label>
+          <input id="cf-company" name="company" type="text" autocomplete="organization" class={field} />
+        </div>
+        <div>
+          <label for="cf-phone" class={label}>{c.phone}</label>
+          <input
+            id="cf-phone"
+            name="phone"
+            type="tel"
+            required
+            autocomplete="tel"
+            inputmode="tel"
+            pattern="[0-9+\s()\-]{7,20}"
+            class={field}
+          />
+        </div>
+        <div>
+          <label for="cf-email" class={label}>{c.email}</label>
+          <input id="cf-email" name="email" type="email" required autocomplete="email" class={field} />
+        </div>
+      </div>
+
+      <div>
+        <label for="cf-service" class={label}>{c.service}</label>
+        <select id="cf-service" name="service" required class={field}>
+          <option value="">{c.servicePlaceholder}</option>
+          {services.map((s) => <option value={s.title}>{s.title}</option>)}
+          <option value={c.serviceOther}>{c.serviceOther}</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="cf-message" class={label}>{c.message}</label>
+        <textarea id="cf-message" name="message" rows="5" required class={field} />
+      </div>
+
+      <button
+        type="submit"
+        class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 text-base font-semibold text-white hover:bg-brand-700 disabled:opacity-60 sm:w-auto"
+      >
+        <Icon name="send" class="size-5" />
+        <span data-label>{c.send}</span>
+      </button>
+
+      <div id="cf-status" role="status" aria-live="polite" class="text-sm" />
+      <p id="cf-fallback" class="hidden text-sm text-gray-600">
+        <a href={waLink()} class="font-semibold text-brand-600 underline">{t.cta.whatsappUs}</a>
+      </p>
+    </form>
+  ) : (
+    <p class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">{c.noKey}</p>
+  )
+}
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  if (form) {
+    const status = document.getElementById('cf-status')!;
+    const fallback = document.getElementById('cf-fallback')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const buttonLabel = button.querySelector<HTMLElement>('[data-label]')!;
+    const d = form.dataset;
+
+    // Browser validation with our own messages.
+    form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea').forEach((el) => {
+      el.addEventListener('invalid', () => {
+        el.setAttribute('aria-invalid', 'true');
+        if (el.validity.valueMissing) el.setCustomValidity(d.required ?? '');
+        else if (el.validity.typeMismatch) el.setCustomValidity(d.invalidEmail ?? '');
+        else if (el.validity.patternMismatch) el.setCustomValidity(d.invalidPhone ?? '');
+      });
+      el.addEventListener('input', () => {
+        el.setCustomValidity('');
+        el.removeAttribute('aria-invalid');
+      });
+    });
+
+    const show = (message: string, ok: boolean) => {
+      status.textContent = message;
+      status.className = ok ? 'text-sm font-medium text-green-700' : 'text-sm font-medium text-red-700';
+      fallback.classList.toggle('hidden', ok);
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+
+      // Honeypot filled: pretend success and send nothing.
+      if (data.get('botcheck')) {
+        show(d.success ?? '', true);
+        return;
+      }
+
+      const service = String(data.get('service') ?? '');
+      data.set('subject', (d.subjectTemplate ?? '').replace('{service}', service));
+      data.set('from_name', String(data.get('name') ?? ''));
+
+      button.disabled = true;
+      buttonLabel.textContent = d.sending ?? '';
+      status.textContent = '';
+      fallback.classList.add('hidden');
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: data,
+        });
+        const json = await res.json();
+        if (res.ok && json.success) {
+          show(d.success ?? '', true);
+          form.reset();
+        } else {
+          show(d.error ?? '', false);
+        }
+      } catch {
+        show(d.error ?? '', false);
+      } finally {
+        button.disabled = false;
+        buttonLabel.textContent = d.send ?? '';
+      }
+    });
+  }
+</script>

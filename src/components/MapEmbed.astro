@@ -1,0 +1,61 @@
+---
+import Icon from './Icon.astro';
+import { formatAddress } from '../data/company';
+import { t } from '../i18n/en';
+
+const c = t.contactPage;
+const query = encodeURIComponent(c.mapQuery);
+const openUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+---
+
+<!-- Click-to-load: nothing from Google loads (and no cookies are set) until the visitor asks for the map. -->
+<div
+  id="map-embed"
+  class="overflow-hidden rounded-2xl border border-gray-200 bg-brand-50"
+  data-src={`https://www.google.com/maps?q=${query}&output=embed`}
+  data-title={c.mapFrameTitle}
+>
+  <div id="map-placeholder" class="flex min-h-[320px] flex-col items-center justify-center gap-4 p-6 text-center">
+    <span class="inline-flex size-14 items-center justify-center rounded-full bg-white text-brand-600 shadow-sm">
+      <Icon name="map-pin" class="size-7" />
+    </span>
+    <p class="max-w-sm font-medium text-gray-800">{formatAddress()}</p>
+    <div class="flex flex-col gap-3 sm:flex-row">
+      <button
+        type="button"
+        id="map-load"
+        class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 text-base font-semibold text-white hover:bg-brand-700"
+      >
+        <Icon name="map-pin" class="size-5" />
+        {c.mapShow}
+      </button>
+      <a
+        href={openUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex h-12 items-center justify-center gap-2 rounded-lg border-2 border-brand-600 px-6 text-base font-semibold text-brand-600 hover:bg-white"
+      >
+        <Icon name="external-link" class="size-5" />
+        {c.mapOpen}
+      </a>
+    </div>
+    <p class="text-xs text-gray-500">{c.mapNote}</p>
+  </div>
+</div>
+
+<script>
+  const box = document.getElementById('map-embed');
+  const load = document.getElementById('map-load');
+  const placeholder = document.getElementById('map-placeholder');
+  if (box && load && placeholder) {
+    load.addEventListener('click', () => {
+      const frame = document.createElement('iframe');
+      frame.src = box.dataset.src ?? '';
+      frame.title = box.dataset.title ?? '';
+      frame.loading = 'lazy';
+      frame.referrerPolicy = 'no-referrer-when-downgrade';
+      frame.className = 'block h-[380px] w-full border-0 sm:h-[440px]';
+      placeholder.replaceWith(frame);
+    });
+  }
+</script>
