@@ -2,9 +2,9 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// Domain decided; register ariabumiresources.com and point it at Cloudflare Pages.
+// No custom domain: the site stays on its free Cloudflare Pages address.
 export default defineConfig({
-  site: 'https://ariabumiresources.com',
+  site: 'https://aria-bumi-website.pages.dev',
   output: 'static',
   integrations: [sitemap()],
   vite: {

@@ -87,6 +87,6 @@ Only the ST and CIDB company certificates are included in `assets/certificates`.
 - Get a vector/high-res logo (current one is 244px from the PDF) or recreate it as SVG
 - Replace low-res collage images with original photos where possible
 - Confirm team names can be shown publicly
-- Register the domain ariabumiresources.com (already set as `site` in astro.config.mjs) and set up a company email on it
+- No custom domain: the site lives at https://aria-bumi-website.pages.dev (set as `site` in astro.config.mjs). Set up a company email separately if wanted
 - ST registration expires 11/12/2026: renew and update the certificates page
 - Set up Google Business Profile and link it to the site
