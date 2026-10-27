@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import CtaButtons from './CtaButtons.astro';
+import { t } from '../i18n/en';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <section class="mx-auto max-w-3xl px-4 py-20 text-center">
+    <h1 class="text-3xl font-bold text-gray-900">{title}</h1>
+    <p class="mt-2 text-lg font-medium text-brand-600">{t.stub.title}</p>
+    <p class="mx-auto mt-3 max-w-xl text-gray-600">{t.stub.text}</p>
+    <div class="mt-8 flex justify-center">
+      <CtaButtons />
+    </div>
+  </section>
+</Base>

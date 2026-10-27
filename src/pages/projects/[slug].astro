@@ -1,0 +1,12 @@
+---
+import { getCollection } from 'astro:content';
+import Stub from '../../components/Stub.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+const { project } = Astro.props;
+---
+
+<Stub title={project.data.title} description={`${project.data.title}: a project by Aria Bumi Resources in Johor.`} />

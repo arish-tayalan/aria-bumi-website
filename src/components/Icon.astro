@@ -1,0 +1,24 @@
+---
+// Inline lucide icon (SVG from lucide-static), sized with Tailwind classes.
+interface Props {
+  name: string;
+  class?: string;
+}
+const { name, class: className = 'size-5' } = Astro.props;
+
+const icons = import.meta.glob('/node_modules/lucide-static/icons/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const raw = icons[`/node_modules/lucide-static/icons/${name}.svg`];
+if (!raw) throw new Error(`Unknown lucide icon: ${name}`);
+
+const svg = raw
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/\s(width|height|class)="[^"]*"/g, '')
+  .replace('<svg', `<svg class="${className}" aria-hidden="true" focusable="false"`);
+---
+
+<Fragment set:html={svg} />

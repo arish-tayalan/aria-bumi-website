@@ -1,0 +1,14 @@
+---
+import Icon from './Icon.astro';
+import { waLink } from '../data/company';
+import { t } from '../i18n/en';
+---
+
+<a
+  href={waLink()}
+  aria-label={t.cta.floatingWhatsapp}
+  class="fixed z-50 flex size-14 items-center justify-center rounded-full bg-whatsapp text-white shadow-lg ring-4 ring-white/80 hover:brightness-95"
+  style="right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom));"
+>
+  <Icon name="message-circle" class="size-7" />
+</a>
