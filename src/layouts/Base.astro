@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { getImage } from 'astro:assets';
-import ogSource from '../assets/projects/machinery-control-system/machinery-control-system-01.jpg';
+import { hero } from '../data/hero';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
@@ -16,7 +16,7 @@ const { title, description } = Astro.props;
 
 const fullTitle = title.includes(company.name) ? title : `${title} | ${company.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const og = await getImage({ src: ogSource, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+const og = await getImage({ src: hero.image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 const ogUrl = new URL(og.src, Astro.site).href;
 
 const jsonLd = {

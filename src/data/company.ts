@@ -52,7 +52,7 @@ export const company = {
 export const services: Service[] = [
   {
     slug: 'control-systems',
-    icon: 'cpu',
+    icon: 'circuit-board',
     title: 'Control Systems',
     description: 'PLC, hydraulic and electro-mechanical machinery control, including control panel fabrication and installation.',
     clients: ['factory'],
