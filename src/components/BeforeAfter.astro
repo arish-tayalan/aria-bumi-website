@@ -1,0 +1,42 @@
+---
+import Gallery from './Gallery.astro';
+import type { GalleryItem } from '../lib/gallery';
+import { t } from '../i18n/en';
+
+interface Props {
+  items: GalleryItem[];
+  group: string;
+}
+const { items, group } = Astro.props;
+
+const before = items.filter((i) => i.phase === 'before');
+const after = items.filter((i) => i.phase === 'after');
+const other = items.filter((i) => i.phase === null);
+
+const panels = [
+  { key: 'before', label: t.projectDetail.before, items: before, badge: 'bg-gray-700' },
+  { key: 'after', label: t.projectDetail.after, items: after, badge: 'bg-whatsapp' },
+];
+---
+
+<section aria-label={t.projectDetail.beforeAfter}>
+  <div class="grid gap-6 lg:grid-cols-2">
+    {
+      panels.map((p) => (
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <span class:list={['inline-block rounded-full px-3 py-1 text-sm font-semibold text-white', p.badge]}>{p.label}</span>
+          <div class="mt-4">
+            <Gallery items={p.items} group={group} compact />
+          </div>
+        </div>
+      ))
+    }
+  </div>
+  {
+    other.length > 0 && (
+      <div class="mt-6">
+        <Gallery items={other} group={group} />
+      </div>
+    )
+  }
+</section>

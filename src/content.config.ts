@@ -2,14 +2,7 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-export const categories = [
-  'control-systems',
-  'power',
-  'mechanical',
-  'hvac',
-  'earthing-lightning',
-  'security',
-] as const;
+import { categories } from './data/categories';
 
 const projects = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/projects' }),

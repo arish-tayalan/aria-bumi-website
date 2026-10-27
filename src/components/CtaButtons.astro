@@ -5,13 +5,14 @@ import { t } from '../i18n/en';
 
 interface Props {
   variant?: 'light' | 'dark';
+  message?: string;
 }
-const { variant = 'light' } = Astro.props;
+const { variant = 'light', message } = Astro.props;
 ---
 
 <div class="flex flex-col gap-3 sm:flex-row">
   <a
-    href={waLink()}
+    href={waLink(message)}
     class="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-whatsapp px-6 text-base font-semibold text-white hover:brightness-95"
   >
     <Icon name="message-circle" class="size-5" />

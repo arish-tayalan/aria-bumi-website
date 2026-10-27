@@ -1,0 +1,29 @@
+---
+import GalleryImage from './GalleryImage.astro';
+import type { GalleryItem } from '../lib/gallery';
+
+interface Props {
+  items: GalleryItem[];
+  group: string;
+  /** Narrow grid used inside before/after panels. */
+  compact?: boolean;
+}
+const { items, group, compact = false } = Astro.props;
+const photos = items.filter((i) => i.kind === 'photo');
+const collages = items.filter((i) => i.kind === 'collage');
+---
+
+{
+  photos.length > 0 && (
+    <div class:list={['grid gap-3', compact ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3']}>
+      {photos.map((item) => <GalleryImage item={item} group={group} compact={compact} />)}
+    </div>
+  )
+}
+{
+  collages.length > 0 && (
+    <div class:list={['flex flex-wrap items-start justify-center gap-4 rounded-xl bg-gray-100 p-4', photos.length > 0 && 'mt-4']}>
+      {collages.map((item) => <GalleryImage item={item} group={group} />)}
+    </div>
+  )
+}

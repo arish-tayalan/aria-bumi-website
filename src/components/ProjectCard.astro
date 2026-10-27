@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import { isCollage as isCollageImage } from '../lib/gallery';
 import { t } from '../i18n/en';
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 const { project } = Astro.props;
 const { title, category, cover } = project.data;
 // Collages must never be cropped, so they sit whole inside the frame.
-const isCollage = cover.src.includes('-collage');
+const isCollage = isCollageImage(cover);
 ---
 
 <a

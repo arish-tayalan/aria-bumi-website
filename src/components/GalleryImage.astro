@@ -1,0 +1,55 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { GalleryItem } from '../lib/gallery';
+import { t } from '../i18n/en';
+
+interface Props {
+  item: GalleryItem;
+  group: string;
+  eager?: boolean;
+  /** Single-column layout (before/after panels), so photos render wider than in the 3-column grid. */
+  compact?: boolean;
+}
+const { item, group, eager = false, compact = false } = Astro.props;
+const photoSizes = compact
+  ? '(min-width: 1024px) 540px, calc(100vw - 4rem)'
+  : '(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw';
+const { image, kind, alt, caption } = item;
+
+// The lightbox opens the image at its native size; never upscaled.
+const full = await getImage({ src: image, width: image.width, format: 'webp' });
+---
+
+<a
+  href={full.src}
+  data-lightbox
+  data-group={group}
+  data-alt={alt}
+  data-caption={caption}
+  aria-label={t.lightbox.openImage(alt)}
+  class:list={['block', kind === 'collage' ? 'w-full' : 'aspect-[4/3] overflow-hidden rounded-lg bg-gray-100']}
+  style={kind === 'collage' ? `max-width:${image.width}px` : undefined}
+>
+  {
+    kind === 'collage' ? (
+      // Collages are never cropped and never shown larger than their native width.
+      <Image
+        src={image}
+        alt={alt}
+        width={image.width}
+        height={image.height}
+        class="h-auto w-full rounded-md"
+        loading={eager ? 'eager' : 'lazy'}
+      />
+    ) : (
+      <Image
+        src={image}
+        alt={alt}
+        widths={[360, 540, 720]}
+        sizes={photoSizes}
+        class="size-full object-cover transition duration-300 hover:scale-105"
+        loading={eager ? 'eager' : 'lazy'}
+      />
+    )
+  }
+</a>

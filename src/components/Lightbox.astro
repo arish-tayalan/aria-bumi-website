@@ -1,0 +1,91 @@
+---
+import Icon from './Icon.astro';
+import { t } from '../i18n/en';
+
+const btn =
+  'inline-flex size-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/25 focus-visible:outline-accent-400';
+---
+
+<dialog
+  id="lightbox"
+  aria-label={t.lightbox.label}
+  class="m-0 h-dvh max-h-none w-dvw max-w-none bg-black/90 p-0 text-white backdrop:bg-black/80"
+>
+  <div class="flex h-full flex-col">
+    <div class="flex items-center justify-between gap-3 p-3 pl-4">
+      <p id="lb-caption" class="min-w-0 truncate text-sm" aria-live="polite"></p>
+      <button type="button" id="lb-close" class={btn} aria-label={t.lightbox.close}>
+        <Icon name="x" class="size-6" />
+      </button>
+    </div>
+    <div class="relative flex min-h-0 flex-1 items-center justify-center px-2 pb-3 sm:px-16">
+      <button type="button" id="lb-prev" class:list={[btn, 'absolute left-2 z-10']} aria-label={t.lightbox.prev}>
+        <Icon name="chevron-left" class="size-6" />
+      </button>
+      <img id="lb-img" alt="" class="max-h-full max-w-full object-contain" />
+      <button type="button" id="lb-next" class:list={[btn, 'absolute right-2 z-10']} aria-label={t.lightbox.next}>
+        <Icon name="chevron-right" class="size-6" />
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dlg = document.getElementById('lightbox') as HTMLDialogElement | null;
+  if (dlg) {
+    const img = dlg.querySelector<HTMLImageElement>('#lb-img')!;
+    const caption = dlg.querySelector<HTMLElement>('#lb-caption')!;
+    const prev = dlg.querySelector<HTMLButtonElement>('#lb-prev')!;
+    const next = dlg.querySelector<HTMLButtonElement>('#lb-next')!;
+    let items: HTMLAnchorElement[] = [];
+    let index = 0;
+
+    const show = (i: number) => {
+      index = (i + items.length) % items.length;
+      const a = items[index];
+      img.src = a.href;
+      img.alt = a.dataset.alt ?? '';
+      caption.textContent = `${a.dataset.caption ?? ''} (${index + 1}/${items.length})`;
+      const single = items.length < 2;
+      prev.hidden = single;
+      next.hidden = single;
+    };
+
+    document.addEventListener('click', (e) => {
+      const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-lightbox]');
+      if (!a) return;
+      e.preventDefault();
+      items = [...document.querySelectorAll<HTMLAnchorElement>(`a[data-lightbox][data-group="${a.dataset.group}"]`)];
+      show(items.indexOf(a));
+      dlg.showModal();
+      document.documentElement.classList.add('overflow-hidden');
+    });
+
+    // Release the scroll lock on every close path (button, backdrop, Esc), not only the `close` event.
+    const unlock = () => document.documentElement.classList.remove('overflow-hidden');
+    const closeViewer = () => {
+      dlg.close();
+      unlock();
+    };
+    dlg.addEventListener('close', unlock);
+    dlg.addEventListener('cancel', unlock);
+    dlg.addEventListener('click', (e) => {
+      const target = e.target as Element;
+      if (target.closest('#lb-close')) closeViewer();
+      else if (target.closest('#lb-prev')) show(index - 1);
+      else if (target.closest('#lb-next')) show(index + 1);
+      else if (!target.closest('img')) closeViewer();
+    });
+    dlg.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(index - 1);
+      if (e.key === 'ArrowRight') show(index + 1);
+    });
+
+    let startX = 0;
+    dlg.addEventListener('touchstart', (e) => (startX = e.changedTouches[0].clientX), { passive: true });
+    dlg.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 50 && items.length > 1) show(index + (dx < 0 ? 1 : -1));
+    });
+  }
+</script>

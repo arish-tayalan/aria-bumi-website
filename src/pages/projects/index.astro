@@ -1,5 +1,106 @@
 ---
-import Stub from '../../components/Stub.astro';
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CtaButtons from '../../components/CtaButtons.astro';
+import { categories } from '../../data/categories';
+import { t } from '../../i18n/en';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const counts = Object.fromEntries(categories.map((c) => [c, projects.filter((p) => p.data.category === c).length]));
+const filters = [
+  { value: 'all', label: t.projectsPage.all, count: projects.length },
+  ...categories.filter((c) => counts[c] > 0).map((c) => ({ value: c, label: t.categories[c], count: counts[c] })),
+];
 ---
 
-<Stub title="Projects" description="Projects by Aria Bumi Resources: control panels, generator sets, air compressors, lightning protection and more across Johor." />
+<Base
+  title="Projects | Electrical & Mechanical Works in Johor"
+  description="Projects by Aria Bumi Resources: control panels, generator sets, air compressors, lightning protection, CCTV and air-conditioning across Johor."
+>
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:py-16">
+    <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">{t.projectsPage.title}</h1>
+    <p class="mt-2 max-w-2xl text-gray-600">{t.projectsPage.sub}</p>
+
+    <!-- Filters stay hidden until the script runs, so without JS every project is simply shown. -->
+    <div id="filters" hidden class="mt-8" role="group" aria-label={t.projectsPage.filterLabel}>
+      <div class="flex flex-wrap gap-2">
+        {
+          filters.map((f) => (
+            <button
+              type="button"
+              data-filter={f.value}
+              aria-pressed={f.value === 'all' ? 'true' : 'false'}
+              class="inline-flex h-11 items-center gap-2 rounded-full border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 hover:border-brand-500 aria-pressed:border-brand-600 aria-pressed:bg-brand-600 aria-pressed:text-white"
+            >
+              {f.label}
+              <span class="text-xs opacity-70">{f.count}</span>
+            </button>
+          ))
+        }
+      </div>
+      <p
+        id="filter-status"
+        class="mt-3 text-sm text-gray-500"
+        aria-live="polite"
+        data-one={t.projectsPage.showingOne}
+        data-many={t.projectsPage.showingMany}
+      >
+      </p>
+    </div>
+
+    <ul class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        projects.map((project) => (
+          <li data-category={project.data.category}>
+            <ProjectCard project={project} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="bg-brand-600 text-white">
+    <div class="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-12 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h2 class="text-2xl font-bold sm:text-3xl">{t.ctaBand.title}</h2>
+        <p class="mt-2 max-w-xl text-brand-100">{t.ctaBand.text}</p>
+      </div>
+      <CtaButtons variant="dark" />
+    </div>
+  </section>
+</Base>
+
+<script>
+  const bar = document.getElementById('filters');
+  const status = document.getElementById('filter-status');
+  const buttons = [...document.querySelectorAll('[data-filter]')];
+  const cards = [...document.querySelectorAll('li[data-category]')];
+
+  if (bar && status && buttons.length) {
+    const valid = new Set(buttons.map((b) => b.dataset.filter));
+
+    const apply = (value, updateUrl) => {
+      let shown = 0;
+      cards.forEach((card) => {
+        const match = value === 'all' || card.dataset.category === value;
+        card.hidden = !match;
+        if (match) shown++;
+      });
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === value)));
+      status.textContent = shown === 1 ? status.dataset.one : (status.dataset.many ?? '').replace('{n}', String(shown));
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        if (value === 'all') url.searchParams.delete('category');
+        else url.searchParams.set('category', value);
+        history.replaceState(null, '', url);
+      }
+    };
+
+    bar.hidden = false;
+    buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.filter, true)));
+
+    const initial = new URLSearchParams(window.location.search).get('category');
+    apply(initial && valid.has(initial) ? initial : 'all', false);
+  }
+</script>
