@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ariabumi.com.my/sitemap-index.xml
+Sitemap: https://ariabumiresources.com/sitemap-index.xml
