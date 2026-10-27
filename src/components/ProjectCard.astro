@@ -6,8 +6,10 @@ import { t } from '../i18n/en';
 
 interface Props {
   project: CollectionEntry<'projects'>;
+  /** Heading level for the card title, so the page's heading order stays valid. */
+  headingLevel?: 'h2' | 'h3';
 }
-const { project } = Astro.props;
+const { project, headingLevel: Heading = 'h3' } = Astro.props;
 const { title, category, cover } = project.data;
 // Collages must never be cropped, so they sit whole inside the frame.
 const isCollage = isCollageImage(cover);
@@ -29,6 +31,6 @@ const isCollage = isCollageImage(cover);
   </div>
   <div class="p-4">
     <p class="text-xs font-semibold uppercase tracking-wide text-accent-500">{t.categories[category]}</p>
-    <h3 class="mt-1 text-lg font-semibold text-gray-900 group-hover:text-brand-600">{title}</h3>
+    <Heading class="mt-1 text-lg font-semibold text-gray-900 group-hover:text-brand-600">{title}</Heading>
   </div>
 </a>

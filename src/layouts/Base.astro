@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { getImage } from 'astro:assets';
 import { hero } from '../data/hero';
+import logo from '../assets/logo/aria-logo-from-pdf.jpg';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
@@ -20,6 +21,9 @@ const fullTitle = title.includes(company.name) ? title : `${title} | ${company.n
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const og = await getImage({ src: hero.image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 const ogUrl = new URL(og.src, Astro.site).href;
+// Favicon and touch icon from the logo, so browsers don't request a missing /favicon.ico.
+const favicon = await getImage({ src: logo, width: 64, height: 64, format: 'png', fit: 'cover' });
+const touchIcon = await getImage({ src: logo, width: 180, height: 180, format: 'png', fit: 'cover' });
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -55,6 +59,8 @@ const jsonLd = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#0B4F8A" />
+    <link rel="icon" type="image/png" sizes="64x64" href={favicon.src} />
+    <link rel="apple-touch-icon" sizes="180x180" href={touchIcon.src} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={company.name} />
     <meta property="og:title" content={fullTitle} />
